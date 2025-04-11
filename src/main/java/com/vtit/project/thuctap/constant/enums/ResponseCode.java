@@ -20,6 +20,9 @@ public enum ResponseCode {
     SUCCESS (200, "Success", HttpStatus.OK),
     CREATE_SUCCESS(201, "{entity} has been created ", HttpStatus.CREATED),
     UPDATE_SUCCESS(201, "{entity} has been updated ", HttpStatus.OK),
+    OUT_OF_STOCK(1009, "{entity} out of stock ", HttpStatus.BAD_REQUEST),
+    INVALID_QUANTITY(1009, "{entity} quantity invalid ", HttpStatus.BAD_REQUEST),
+    CANNOT_DELETE_RETURNED_BORROW(1011, "cant not delete returned borrowed ", HttpStatus.BAD_REQUEST),
     ;
 
 

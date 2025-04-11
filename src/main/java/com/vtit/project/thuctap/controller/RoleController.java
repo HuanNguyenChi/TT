@@ -15,6 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -26,12 +27,14 @@ public class RoleController {
     private final RoleService roleService;
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> createRole(@RequestBody RoleDTO roleDTO) {
         return ApiResponse.<RoleDTO>builder()
                 .result(roleService.createRole(roleDTO))
                 .build();
     }
     @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> updateRole(@RequestBody UpdateRoleRequest request) {
         return ApiResponse.<RoleDTO>builder()
                 .result(roleService.updateRole(request))
@@ -39,6 +42,7 @@ public class RoleController {
 
     }
     @GetMapping("/detail")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> detailRole(@RequestParam("id") Long id) {
         return ApiResponse.<RoleDTO>builder()
                 .result(roleService.findById(id))
@@ -46,6 +50,7 @@ public class RoleController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> findRoleFilter(@RequestBody ListRoleRequest request,
                                          @PageableDefault(page = 0, size = 10, sort = "code", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponse.<Page<?>>builder()
@@ -53,6 +58,7 @@ public class RoleController {
                 .build();
     }
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> deleteRole(@RequestParam("ids") List<Long> ids) {
         roleService.deleteRole(ids);
         return ApiResponse.<String>builder()

@@ -29,8 +29,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public RoleDTO findByCode(String roleCode) {
-        return modelMapper.map(roleRepository.findByCode(roleCode), RoleDTO.class);
+    public RoleDTO findByCode(List<String> roleCodes) {
+        return modelMapper.map(roleRepository.findByCode(roleCodes), RoleDTO.class);
     }
 
     @Override

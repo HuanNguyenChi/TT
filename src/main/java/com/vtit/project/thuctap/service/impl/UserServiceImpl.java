@@ -16,6 +16,8 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
     private final RoleRepository roleRepository;
+//    private final PasswordEncoder passwordEncoder;
 
 
     @Override
@@ -58,11 +61,12 @@ public class UserServiceImpl implements UserService {
     public UserDTO createUser(CreateUserRequest createUserRequest) {
         User user = modelMapper.map(createUserRequest, User.class);
 
-        List<Role> roles = roleRepository.findByCode("ROLE_USER")
+        List<Role> roles = roleRepository.findByCode(Arrays.asList("ROLE_USER", "ROLE_ADMIN"))
                 .map(List :: of)
                 .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.ROLE));
         user.setRoleList(roles);
-
+//        user.setPassword(passwordEncoder.encode(createUserRequest.getPassword()));
+        user.setPassword(createUserRequest.getPassword());
         validateCreateUser(user);
         User savedUser = userRepository.save(user);
 
@@ -71,7 +75,15 @@ public class UserServiceImpl implements UserService {
 
         return modelMapper.map(savedUser, UserDTO.class);
     }
+    public UserDTO getMyInfo() {
+        var context = SecurityContextHolder.getContext();
+        String name = context.getAuthentication().getName();
 
+        User user = userRepository.findByUsername(name)
+                .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED,ResponseObject.USER));
+
+        return modelMapper.map(user, UserDTO.class);
+    }
     @Override
     public UserDTO updateUser(UpdateUserRequest  request) {
         User user = userRepository.findById(request.getId())

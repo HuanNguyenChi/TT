@@ -22,6 +22,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +38,7 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping( produces = MediaType.APPLICATION_JSON_VALUE)
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<Page<?>> findBookFilter(@RequestBody ListBookRequest request,
                                                @PageableDefault(page = 0, size = 10, sort = "code", direction = Sort.Direction.ASC)Pageable pageable){
         return ApiResponse.<Page<?>>builder()
@@ -46,6 +48,7 @@ public class BookController {
 
 
     @GetMapping("/detail")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<?> findDetailBookById(@RequestParam("id") Long id){
         BookDTO book = bookService.getBookDetailById(id);
         return ApiResponse.<BookDTO>builder()
@@ -54,7 +57,7 @@ public class BookController {
     }
 
     @PostMapping(value = "/create")
-
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> createBook(@RequestBody CreateBookRequest request){
         return ApiResponse.<BookDTO>builder()
                 .result(bookService.createBook(request))
@@ -63,6 +66,7 @@ public class BookController {
     }
 
     @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> updateBook(@RequestBody UpdateBookRequest request){
         return ApiResponse.<BookDTO>builder()
                 .result(bookService.updateBook(request))
@@ -70,6 +74,7 @@ public class BookController {
     }
 
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> deleteBook(@RequestParam List<Long> ids){
         bookService.deleteBookById(ids);
         return ApiResponse.<String>builder()
@@ -79,6 +84,7 @@ public class BookController {
 
 
     @GetMapping("/export")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ResponseEntity<Resource> exportBooks() {
         ByteArrayOutputStream outputStream = bookService.exportBook();
 
@@ -92,6 +98,7 @@ public class BookController {
     }
 
     @PostMapping("/import")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> importBooks(@RequestBody MultipartFile file) {
         return ApiResponse.builder()
                 .result(bookService.processExcelImport(file))

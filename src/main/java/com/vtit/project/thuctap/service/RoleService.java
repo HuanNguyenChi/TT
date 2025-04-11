@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface RoleService {
     RoleDTO findByName(String roleUser);
-    RoleDTO findByCode(String roleCode);
+    RoleDTO findByCode(List<String> roleCodes);
     RoleDTO findById(long id);
     RoleDTO createRole(RoleDTO roleDTO);
     RoleDTO updateRole(UpdateRoleRequest request);

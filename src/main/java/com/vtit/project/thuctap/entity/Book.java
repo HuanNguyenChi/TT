@@ -39,6 +39,10 @@ public class Book {
     private Boolean isActive;
     @Column
     private Boolean isDeleted;
+    @Column
+    private Integer totalQuantity;
+    @Column
+    private Integer remainQuantity;
 
     @Column
     private int createdBy;

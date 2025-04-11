@@ -27,7 +27,7 @@ public class Borrow {
     @JoinColumn(name = "user_id", nullable = false)
     private User userId;
 
-    @OneToMany(mappedBy = "borrowId")
+    @OneToMany(mappedBy = "borrowId", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BorrowItem> borrowItemList;
 
     @PrePersist

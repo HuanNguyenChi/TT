@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,6 +31,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping(value = "")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Page<?>>  findUserFilter(@RequestBody ListUserRequest request,
                                                 @PageableDefault(page = 0, size = 10, sort = "username", direction = Sort.Direction.ASC)Pageable pageable) {
         return ApiResponse.<Page<?>>builder()
@@ -44,6 +47,7 @@ public class UserController {
     }
 
     @GetMapping(value = "/detail")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> findDetailUserById(@RequestParam("id") Long id){
         return ApiResponse.<UserDTO>builder()
                 .result(userService.findDetailUserById(id))
@@ -51,6 +55,7 @@ public class UserController {
     }
 
     @PutMapping(value = "/update", produces = MediaType.APPLICATION_JSON_VALUE)
+    @PostAuthorize("returnObject.username == authentication.name")
     public ApiResponse<?> updateUser(@RequestBody UpdateUserRequest request){
         return ApiResponse.<UserDTO>builder()
                 .result(userService.updateUser(request))
@@ -58,6 +63,7 @@ public class UserController {
     }
 
     @DeleteMapping(value = "/delete")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<?> deleteUserById(@RequestParam("ids") List<Long> ids){
         userService.deleteUserById(ids);
         return ApiResponse.<String>builder()

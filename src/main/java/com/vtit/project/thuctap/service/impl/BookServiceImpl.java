@@ -260,14 +260,6 @@ public class BookServiceImpl implements BookService {
                 bookRepository.saveAll(booksToSave);
             }
         }
-//        if (!books.isEmpty()) {
-//            bookRepository.saveAll(
-//                    books
-//                    .stream()
-//                    .map(bookDTO -> modelMapper.map(bookDTO, Book.class))
-//                    .collect(Collectors.toList())
-//            );
-//        }
     }
 
     private Map<String, Object> createErrorResponse(ImportExcelResponse result) {

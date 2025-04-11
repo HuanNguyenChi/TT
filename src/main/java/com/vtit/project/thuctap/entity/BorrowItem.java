@@ -20,8 +20,8 @@ public class BorrowItem {
     private Long id;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private EStatusBorrow status;
+    @Column(nullable = false, columnDefinition = "ENUM('BORROWED', 'RETURNED', 'OVERDUE') DEFAULT 'BORROWED'")
+    private EStatusBorrow status = EStatusBorrow.BORROWED;
     @Column
     private Integer quantity;
     @Column

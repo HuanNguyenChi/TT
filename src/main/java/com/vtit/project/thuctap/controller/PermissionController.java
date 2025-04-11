@@ -13,6 +13,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @GetMapping()
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> getPermissionFilter(@RequestBody ListPermissionRequest request,
                                               @PageableDefault(page = 0, size = 10, sort = "code", direction = Sort.Direction.ASC) Pageable pageable) {
         return ApiResponse.<Page<?>>builder()
@@ -32,6 +34,7 @@ public class PermissionController {
     }
 
     @GetMapping("/detail")
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> getPermissionDetail(@RequestParam("id") Long id) {
         return ApiResponse.<PermissionDTO>builder()
                 .result(permissionService.findPermissionById(id))
@@ -39,6 +42,7 @@ public class PermissionController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> createPermission(@RequestBody PermissionDTO permissionDTO) {
         return ApiResponse.<PermissionDTO>builder()
                 .result(permissionService.createPermission(permissionDTO))
@@ -46,6 +50,7 @@ public class PermissionController {
     }
 
     @PutMapping("/update")
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> updatePermission(@RequestBody PermissionDTO permissionDTO) {
         return ApiResponse.<PermissionDTO>builder()
                 .result(permissionService.updatePermission(permissionDTO))
@@ -53,6 +58,7 @@ public class PermissionController {
     }
 
     @DeleteMapping("/delete")
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> deletePermission(@RequestParam("ids") List<Long> ids) {
        permissionService.deletePermission(ids);
        return ApiResponse.<String>builder()
@@ -61,6 +67,7 @@ public class PermissionController {
     }
 
     @GetMapping("/find-by-code")
+    @PreAuthorize(" hasRole('ADMIN')")
     public ApiResponse<?> findPermissionByCode(@RequestBody String code) {
         return ApiResponse.<List<PermissionDTO>>builder()
                 .result(permissionService.findPermissionByRoleCode(code))

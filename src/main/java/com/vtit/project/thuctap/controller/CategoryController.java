@@ -16,6 +16,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,18 +41,21 @@ public class CategoryController {
                 .build();
     }
     @PostMapping("/create")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<?> createCategory(@RequestBody CreateCategoryRequest request){
         return ApiResponse.<CategoryDTO>builder()
                 .result(categoryService.CreateCategory(request))
                 .build();
     }
     @PutMapping("/update")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<?> updateCategory(@RequestBody UpdateCategoryRequest request){
         return ApiResponse.<CategoryDTO>builder()
                 .result(categoryService.updateCategory(request))
                 .build();
     }
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ApiResponse<?> deleteCategory(@RequestParam("ids") List<Long> ids){
         categoryService.deleteCategory(ids);
         return ApiResponse.<String>builder()
