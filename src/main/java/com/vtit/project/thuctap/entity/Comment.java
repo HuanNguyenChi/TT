@@ -1,5 +1,6 @@
 package com.vtit.project.thuctap.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.vtit.project.thuctap.utlis.TimeUtil;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,12 +29,14 @@ public class Comment {
     @Column
     private Boolean isDeleted;
 
-    @ManyToOne
-    @JoinColumn(name = "postId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id")
+    @JsonIgnore
     private Post postId;
 
-    @ManyToOne
-    @JoinColumn(name = "userId")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
     private User userId;
     @PrePersist
     protected void onCreate() {

@@ -23,6 +23,6 @@ public class Permission {
     @Column
     private String description;
 
-    @ManyToMany(mappedBy = "permissionList")
+    @ManyToMany(mappedBy = "permissionList", fetch = FetchType.LAZY)
     private List<Role> roleList;
 }

@@ -49,13 +49,13 @@ public class Book {
     @Column
     private int updatedBy;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(name = "book_categories",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "category_id"))
     private List<Category> categoryList;
 
-    @OneToMany(mappedBy = "bookId")
+    @OneToMany(mappedBy = "bookId", fetch = FetchType.LAZY)
     private List<BorrowItem> borrowItemList;
 
     @Override

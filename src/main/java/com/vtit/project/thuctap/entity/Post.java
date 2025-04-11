@@ -35,12 +35,14 @@ public class Post {
     private Timestamp createdAt;
     @Column
     private Timestamp updatedAt;
-    @Column
-    private int createdBy;
-    @Column
-    private int updatedBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "updated_by")
+    private User updatedBy;
 
-    @OneToMany(mappedBy = "postId")
+    @OneToMany(mappedBy = "postId",fetch = FetchType.LAZY)
     private List<Comment> commentList;
 
     @PrePersist

@@ -43,10 +43,10 @@ public class User {
     @Column
     private Boolean isDeleted;
 
-    @ManyToMany(mappedBy = "userList")
+    @ManyToMany(mappedBy = "userList", fetch = FetchType.LAZY)
     private List<Role> roleList;
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
     private List<Borrow> borrowList;
 
     @OneToMany(mappedBy = "userId")

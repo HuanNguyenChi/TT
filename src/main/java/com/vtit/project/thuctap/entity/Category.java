@@ -23,6 +23,6 @@ public class Category {
     @Column
     private String description;
 
-    @ManyToMany(mappedBy = "categoryList")
+    @ManyToMany(mappedBy = "categoryList",fetch = FetchType.LAZY)
     private List<Book> bookList;
 }

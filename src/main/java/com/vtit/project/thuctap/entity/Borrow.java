@@ -23,11 +23,11 @@ public class Borrow {
     @Column
     private Timestamp expireAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User userId;
 
-    @OneToMany(mappedBy = "borrowId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "borrowId", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BorrowItem> borrowItemList;
 
     @PrePersist
