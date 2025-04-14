@@ -34,4 +34,10 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 
 
     List<Book> findAllByCodeIn(List<String> codes);
+    @Query("""
+    SELECT DISTINCT b FROM Book b
+    LEFT JOIN b.categoryList c
+    WHERE c.id = :categoryId OR :categoryId IS NULL
+    """)
+    List<Book> findAllByCategory(@Param("categoryId") Long categoryId);
 }

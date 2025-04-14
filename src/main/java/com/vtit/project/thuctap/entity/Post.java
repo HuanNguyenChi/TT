@@ -45,6 +45,9 @@ public class Post {
     @OneToMany(mappedBy = "postId",fetch = FetchType.LAZY)
     private List<Comment> commentList;
 
+    @OneToMany(mappedBy = "postId")
+    private List<Interact> interactList;
+
     @PrePersist
     protected void onCreate() {
         this.isActive = true;

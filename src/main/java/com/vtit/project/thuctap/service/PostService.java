@@ -1,7 +1,9 @@
 package com.vtit.project.thuctap.service;
 
 import com.vtit.project.thuctap.dto.request.CreatePostRequest;
+import com.vtit.project.thuctap.dto.request.InteractRequest;
 import com.vtit.project.thuctap.dto.request.UpdatePostRequest;
+import com.vtit.project.thuctap.dto.response.InteractDTO;
 import com.vtit.project.thuctap.dto.response.PostDTO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,4 +14,5 @@ public interface PostService {
     PostDTO findById(Long id);
     PostDTO update(UpdatePostRequest request);
     void delete(Long id);
+    InteractDTO interact(InteractRequest request);
 }

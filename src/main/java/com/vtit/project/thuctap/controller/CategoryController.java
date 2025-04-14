@@ -5,10 +5,13 @@ import com.vtit.project.thuctap.dto.request.CreateCategoryRequest;
 import com.vtit.project.thuctap.dto.request.ListCategoryRequest;
 import com.vtit.project.thuctap.dto.request.UpdateCategoryRequest;
 import com.vtit.project.thuctap.dto.response.ApiResponse;
+import com.vtit.project.thuctap.dto.response.BookDTO;
 import com.vtit.project.thuctap.dto.response.CategoryDTO;
 import com.vtit.project.thuctap.dto.response.ResponseMessage;
 import com.vtit.project.thuctap.exception.ThucTapException;
+import com.vtit.project.thuctap.service.BookService;
 import com.vtit.project.thuctap.service.CategoryService;
+import com.vtit.project.thuctap.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CategoryController {
     private final CategoryService categoryService;
+    private final DashboardService dashboardService;
     @GetMapping()
     public ApiResponse<?> findCategoryFilter(@RequestBody ListCategoryRequest request,
                                              @PageableDefault(page = 0, size = 10, sort = "code", direction = Sort.Direction.ASC)Pageable pageable){
@@ -60,6 +64,13 @@ public class CategoryController {
         categoryService.deleteCategory(ids);
         return ApiResponse.<String>builder()
                 .result("Category has been deleted")
+                .build();
+    }
+
+    @GetMapping("/statistics")
+    public ApiResponse<?> statistics(@RequestParam("categoryId") Long categoryId){
+        return ApiResponse.<List<BookDTO>>builder()
+                .result(dashboardService.statisticBookByCategory(categoryId))
                 .build();
     }
 

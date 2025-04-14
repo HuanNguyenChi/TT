@@ -3,13 +3,17 @@ package com.vtit.project.thuctap.service.impl;
 import com.vtit.project.thuctap.constant.enums.ResponseCode;
 import com.vtit.project.thuctap.constant.enums.ResponseObject;
 import com.vtit.project.thuctap.dto.request.CreatePostRequest;
+import com.vtit.project.thuctap.dto.request.InteractRequest;
 import com.vtit.project.thuctap.dto.request.UpdatePostRequest;
+import com.vtit.project.thuctap.dto.response.InteractDTO;
 import com.vtit.project.thuctap.dto.response.PostDTO;
 import com.vtit.project.thuctap.dto.response.UserDTO;
+import com.vtit.project.thuctap.entity.Interact;
 import com.vtit.project.thuctap.entity.Post;
 import com.vtit.project.thuctap.entity.User;
 import com.vtit.project.thuctap.exception.ThucTapException;
 import com.vtit.project.thuctap.repository.CommentRepository;
+import com.vtit.project.thuctap.repository.InteractRepository;
 import com.vtit.project.thuctap.repository.PostRepository;
 import com.vtit.project.thuctap.repository.UserRepository;
 import com.vtit.project.thuctap.service.PostService;
@@ -34,6 +38,7 @@ public class PostServiceImpl implements PostService {
     private final UserRepository userRepository;
     private final CommentRepository commentRepository;
     private final ModelMapper modelMapper;
+    private final InteractRepository  interactRepository;
 
     @Override
     public Page<PostDTO> findPosts(Pageable pageable, Long userId) {
@@ -92,5 +97,22 @@ public class PostServiceImpl implements PostService {
                 .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.POST));
         postRepository.delete(post);
 
+    }
+
+    @Override
+    public InteractDTO interact(InteractRequest request) {
+        User user = userRepository.findById(request.getIdUser())
+                .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.USER));
+        Post post = postRepository.findById(request.getIdPost())
+                .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.POST));
+        Interact interact = new Interact();
+        interact.setStatus(request.getStatus());
+        interact.setPostId(post);
+        interact.setUserId(user);
+        Interact saveInteract = interactRepository.save(interact);
+
+        post.getInteractList().add(saveInteract);
+        postRepository.save(post);
+        return modelMapper.map(saveInteract, InteractDTO.class);
     }
 }
