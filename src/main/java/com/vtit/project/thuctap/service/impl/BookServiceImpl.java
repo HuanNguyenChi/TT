@@ -109,27 +109,6 @@ public class BookServiceImpl implements BookService {
         return modelMapper.map(updatedBook, BookDTO.class);
     }
 
-//    @Override
-//    public BookDTO updateBook(UpdateBookRequest request) {
-//       Book book = bookRepository.findById(request.getId())
-//               .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.BOOK));
-//
-//       if(!book.getCode().equals(request.getCode())) {
-//           if(bookRepository.existsByCode(request.getCode())) {
-//               throw new ThucTapException(ResponseCode.EXISTED, ResponseObject.CODE);
-//           }
-//       }
-//
-//        List<Category> newCategorys = categoryRepository.findAllById(request.getCategoryList());
-//        Set<Category> existingCategorys = new HashSet<>(book.getCategoryList()) ;
-//        newCategorys.forEach(category -> existingCategorys.add(category));
-//
-//        book.setCategoryList(new ArrayList<>(existingCategorys));
-//        Book updatedBook = bookRepository.save(book);
-//
-//        return modelMapper.map(updatedBook, BookDTO.class);
-//    }
-
     @Override
     public void deleteBookById(List<Long> ids) {
         bookRepository.deleteAllById(ids);
@@ -199,6 +178,9 @@ public class BookServiceImpl implements BookService {
         }
     }
 
+
+
+
     public ResponseEntity<?> processExcelImport(MultipartFile file) {
         if (!isExcelFile(file)) {
             return ResponseEntity.badRequest().body("Only Excel files are allowed");
@@ -208,9 +190,7 @@ public class BookServiceImpl implements BookService {
 
         if (!result.getErrors().isEmpty()) {
             Map<String, Object> response = createErrorResponse(result);
-
             saveValidBooks(result.getImportedBooks());
-
             return ResponseEntity.status(HttpStatus.PARTIAL_CONTENT).body(response);
         }
 
@@ -226,6 +206,13 @@ public class BookServiceImpl implements BookService {
     private ImportExcelResponse importBooks(MultipartFile file) {
         List<BookDTO> importedBookDTOs = new ArrayList<>();
         List<String> errors = new ArrayList<>();
+        Set<String> seenCodes = new HashSet<>(); // Theo dõi mã sách trong file Excel
+
+        // Lấy tất cả mã sách từ DB
+        List<Book> existingBooks = bookRepository.findAll();
+        Set<String> existingCodes = existingBooks.stream()
+                .map(Book::getCode)
+                .collect(Collectors.toSet());
 
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
@@ -233,23 +220,24 @@ public class BookServiceImpl implements BookService {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
 
-            if (rows.hasNext()) rows.next();
+            if (rows.hasNext()) rows.next(); // Bỏ qua header
 
             int rowNum = 1;
             while (rows.hasNext()) {
                 rowNum++;
                 Row currentRow = rows.next();
-                processRow(currentRow, rowNum, importedBookDTOs, errors);
+                processRow(currentRow, rowNum, importedBookDTOs, errors, seenCodes, existingCodes);
             }
 
         } catch (IOException e) {
-            errors.add("Error reading Excel file: " + e.getMessage());
+            errors.add("File Error: Error reading Excel file: " + e.getMessage());
         }
 
         return new ImportExcelResponse(importedBookDTOs, errors);
     }
 
-    private void processRow(Row currentRow, int rowNum, List<BookDTO> importedBooks, List<String> errors) {
+    private void processRow(Row currentRow, int rowNum, List<BookDTO> importedBooks,
+                            List<String> errors, Set<String> seenCodes, Set<String> existingCodes) {
         try {
             BookDTO book = new BookDTO();
             book.setCode(getStringValue(currentRow.getCell(0)));
@@ -258,45 +246,44 @@ public class BookServiceImpl implements BookService {
             book.setQuantity(Integer.parseInt(getStringValue(currentRow.getCell(3))));
             book.setPublishedAt(Integer.parseInt(getStringValue(currentRow.getCell(4))));
             book.setIsActive(Boolean.valueOf(getStringValue(currentRow.getCell(5))));
-            System.out.println(book.toString());
+
             try {
                 book.setQuantity((int) currentRow.getCell(3).getNumericCellValue());
             } catch (Exception e) {
-                throw new IllegalArgumentException("Quantity must be a number at row " + rowNum);
+                throw new IllegalArgumentException("Quantity must be a number");
             }
 
-//            if (book.getCode() != null ) {
-//                throw new IllegalArgumentException("Code is required at row " + rowNum);
-//            }
+            // Kiểm tra mã sách
+            if (book.getCode() == null || book.getCode().isEmpty()) {
+                throw new IllegalArgumentException("Code is required");
+            }
+
+            // Kiểm tra trùng mã trong DB
+            if (existingCodes.contains(book.getCode())) {
+                throw new IllegalArgumentException("Code already exists in database");
+            }
+
+            // Kiểm tra trùng mã trong file Excel
+            if (!seenCodes.add(book.getCode())) { // add() trả về false nếu mã đã tồn tại
+                throw new IllegalArgumentException("Duplicate code in Excel file");
+            }
 
             if (book.getTitle() == null || book.getTitle().isEmpty()) {
-                throw new IllegalArgumentException("Title is required at row " + rowNum);
+                throw new IllegalArgumentException("Title is required");
             }
 
             importedBooks.add(book);
         } catch (Exception e) {
-            errors.add(e.getMessage());
+            errors.add("Row " + rowNum + ": " + e.getMessage());
         }
     }
 
     private void saveValidBooks(List<BookDTO> books) {
         if (!books.isEmpty()) {
-            List<Book> existingBooks = bookRepository.findAllByCodeIn(
-                    books.stream().map(BookDTO::getCode).collect(Collectors.toList())
-            );
-
-            Set<String> existingCodes = existingBooks.stream()
-                    .map(Book::getCode)
-                    .collect(Collectors.toSet());
-
             List<Book> booksToSave = books.stream()
-                    .filter(bookDTO -> !existingCodes.contains(bookDTO.getCode())) // Chỉ lấy những book chưa tồn tại
                     .map(bookDTO -> modelMapper.map(bookDTO, Book.class))
                     .collect(Collectors.toList());
-
-            if (!booksToSave.isEmpty()) {
-                bookRepository.saveAll(booksToSave);
-            }
+            bookRepository.saveAll(booksToSave);
         }
     }
 
@@ -315,6 +302,7 @@ public class BookServiceImpl implements BookService {
                 "importedCount", result.getImportedBooks().size()
         ));
     }
+
     private String getStringValue(Cell cell) {
         if (cell == null) return null;
         switch (cell.getCellType()) {
