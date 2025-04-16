@@ -40,4 +40,9 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     WHERE c.id = :categoryId OR :categoryId IS NULL
     """)
     List<Book> findAllByCategory(@Param("categoryId") Long categoryId);
+
+    @Query("""
+    SELECT b.code FROM Book b
+    """)
+    List<String> findAllCodes();
 }
