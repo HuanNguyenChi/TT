@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,6 +19,7 @@ public class BorrowController {
     private final BorrowService borrowService;
 
     @GetMapping("")
+    @PreAuthorize("hasRole('ADMIN')")
     public ApiResponse<Page<?>> findAllBook(@PageableDefault(page = 0, size = 10) Pageable pageable,
                                             @RequestParam(value = "userId") Long userId){
         return ApiResponse.<Page<?>>builder()
@@ -26,6 +28,7 @@ public class BorrowController {
     }
 
     @GetMapping("/detail")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
     public ApiResponse<?> detail(@RequestParam(value = "id") Long id){
         return ApiResponse.<BorrowDTO>builder()
                 .result(borrowService.findById(id))
@@ -33,6 +36,7 @@ public class BorrowController {
     }
 
     @PostMapping("/create")
+    @PreAuthorize("hasRole('ADMIN') ")
     public ApiResponse<?> create(@RequestBody CreateBorrowRequest request){
         return ApiResponse.<BorrowDTO>builder()
                 .result(borrowService.save(request))
@@ -40,6 +44,7 @@ public class BorrowController {
     }
 
     @PutMapping("/update")
+    @PreAuthorize("hasRole('ADMIN') ")
     public ApiResponse<?> update(@RequestBody UpdateBorrowRequest request){
         return ApiResponse.<BorrowDTO>builder()
                 .result(borrowService.update(request))
@@ -47,6 +52,7 @@ public class BorrowController {
     }
 
     @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN') ")
     public ApiResponse<?> delete(@RequestParam Long id){
         borrowService.delete(id);
         return ApiResponse.<String>builder()

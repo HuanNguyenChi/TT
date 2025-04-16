@@ -1,37 +1,37 @@
-//package com.vtit.project.thuctap.security;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.vtit.project.thuctap.constant.enums.ResponseCode;
-//import com.vtit.project.thuctap.dto.response.ApiResponse;
-//import jakarta.servlet.ServletException;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.servlet.http.HttpServletResponse;
-//import org.springframework.http.MediaType;
-//import org.springframework.security.core.AuthenticationException;
-//import org.springframework.security.web.AuthenticationEntryPoint;
-//
-//import java.io.IOException;
-//
-//public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
-//
-//    @Override
-//    public void commence(HttpServletRequest request,
-//                         HttpServletResponse response,
-//                         AuthenticationException authException)
-//            throws IOException, ServletException {
-//        ResponseCode errorCode = ResponseCode.UNAUTHENTICATED;
-//
-//        response.setStatus(errorCode.getStatusCode().value());
-//        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-//
-//        ApiResponse<?> apiResponse = ApiResponse.builder()
-//                .code(errorCode.getCode())
-//                .message(errorCode.getMessage())
-//                .build();
-//
-//        ObjectMapper objectMapper = new ObjectMapper();
-//
-//        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-//        response.flushBuffer();
-//    }
-//}
+package com.vtit.project.thuctap.security;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.vtit.project.thuctap.constant.enums.ResponseCode;
+import com.vtit.project.thuctap.dto.response.ApiResponse;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+
+import java.io.IOException;
+
+public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException)
+            throws IOException, ServletException {
+        ResponseCode errorCode = ResponseCode.UNAUTHENTICATED;
+
+        response.setStatus(errorCode.getStatusCode().value());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+
+        ApiResponse<?> apiResponse = ApiResponse.builder()
+                .code(errorCode.getCode())
+                .message(errorCode.getMessage())
+                .build();
+
+        ObjectMapper objectMapper = new ObjectMapper();
+
+        response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+        response.flushBuffer();
+    }
+}

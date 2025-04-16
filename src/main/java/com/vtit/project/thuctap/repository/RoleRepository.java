@@ -20,7 +20,7 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     Optional<Role> findByName(String roleUser);
     @Query("SELECT r FROM Role r WHERE r.code IN :roleCodes")
-    Optional<Role> findByCode(@Param("roleCodes") List<String> roleCodes);
+    List<Role> findByCode(@Param("roleCodes") List<String> roleCodes);
 
     @Query("SELECT new com.vtit.project.thuctap.dto.response.RoleDTO(r.code, r.description, r.name) FROM Role r " +
             " WHERE (:#{#request.code} IS NULL OR r.code LIKE CONCAT('%', :#{#request.code}, '%') )" +

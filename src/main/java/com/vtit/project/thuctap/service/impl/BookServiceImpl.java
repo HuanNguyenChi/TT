@@ -1,5 +1,6 @@
 package com.vtit.project.thuctap.service.impl;
 
+import com.vtit.project.thuctap.constant.FieldUpdate;
 import com.vtit.project.thuctap.constant.enums.ResponseCode;
 import com.vtit.project.thuctap.constant.enums.ResponseObject;
 import com.vtit.project.thuctap.dto.request.CreateBookRequest;
@@ -70,27 +71,64 @@ public class BookServiceImpl implements BookService {
         categoryRepository.saveAll(categoryList);
         return modelMapper.map(savedBook, BookDTO.class);
     }
-
     @Override
     public BookDTO updateBook(UpdateBookRequest request) {
-       Book book = bookRepository.findById(request.getId())
-               .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.BOOK));
+        // Tìm kiếm sách theo ID
+        Book book = bookRepository.findById(request.getId())
+                .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.BOOK));
 
-       if(!book.getCode().equals(request.getCode())) {
-           if(bookRepository.existsByCode(request.getCode())) {
-               throw new ThucTapException(ResponseCode.EXISTED, ResponseObject.CODE);
-           }
-       }
+        // Kiểm tra và cập nhật các trường nếu cần thiết
+        if (!book.getCode().equals(request.getCode())) {
+            if (bookRepository.existsByCode(request.getCode())) {
+                throw new ThucTapException(ResponseCode.EXISTED, ResponseObject.CODE);
+            }
+            book.setCode(request.getCode());
+        }
 
-        List<Category> newCategorys = categoryRepository.findAllById(request.getCategoryList());
-        Set<Category> existingCategorys = new HashSet<>(book.getCategoryList()) ;
-        newCategorys.forEach(category -> existingCategorys.add(category));
+        // Sử dụng Stream để kiểm tra và cập nhật các trường còn lại
+        List.of(
+                new FieldUpdate<>(book::getCode, book::setCode, request.getCode()),  // String
+                new FieldUpdate<>(book::getTitle, book::setTitle, request.getTitle()),  // String
+                new FieldUpdate<>(book::getAuthor, book::setAuthor, request.getAuthor()),  // String
+                new FieldUpdate<>(book::getDescription, book::setDescription, request.getDescription()),  // String
+                new FieldUpdate<>(book::getQuantity, book::setQuantity, request.getQuantity()),  // Integer
+                new FieldUpdate<>(book::getIsActive, book::setIsActive, request.isActive())  // Boolean
+        ).forEach(FieldUpdate::updateIfNeeded);
 
-        book.setCategoryList(new ArrayList<>(existingCategorys));
+        // Xử lý danh sách categoryList với Stream
+        List<Category> newCategories = categoryRepository.findAllById(request.getCategoryList());
+        Set<Category> existingCategories = new HashSet<>(book.getCategoryList());
+        existingCategories.addAll(newCategories);  // Thêm tất cả category mới vào set
+
+        book.setCategoryList(new ArrayList<>(existingCategories));
+
+        // Lưu sách đã được cập nhật
         Book updatedBook = bookRepository.save(book);
 
+        // Chuyển đổi thành BookDTO để trả về cho client
         return modelMapper.map(updatedBook, BookDTO.class);
     }
+
+//    @Override
+//    public BookDTO updateBook(UpdateBookRequest request) {
+//       Book book = bookRepository.findById(request.getId())
+//               .orElseThrow(() -> new ThucTapException(ResponseCode.NOT_EXISTED, ResponseObject.BOOK));
+//
+//       if(!book.getCode().equals(request.getCode())) {
+//           if(bookRepository.existsByCode(request.getCode())) {
+//               throw new ThucTapException(ResponseCode.EXISTED, ResponseObject.CODE);
+//           }
+//       }
+//
+//        List<Category> newCategorys = categoryRepository.findAllById(request.getCategoryList());
+//        Set<Category> existingCategorys = new HashSet<>(book.getCategoryList()) ;
+//        newCategorys.forEach(category -> existingCategorys.add(category));
+//
+//        book.setCategoryList(new ArrayList<>(existingCategorys));
+//        Book updatedBook = bookRepository.save(book);
+//
+//        return modelMapper.map(updatedBook, BookDTO.class);
+//    }
 
     @Override
     public void deleteBookById(List<Long> ids) {

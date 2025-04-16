@@ -14,7 +14,6 @@ import java.sql.Timestamp;
 public class UserDTO {
     private Long id;
     private String username;
-    private String password;
     private String fullname;
     private String email;
     private String phone;

@@ -2,9 +2,7 @@ package com.vtit.project.thuctap.entity;
 
 import com.vtit.project.thuctap.utlis.TimeUtil;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 
 import java.sql.Timestamp;
@@ -12,6 +10,8 @@ import java.util.List;
 
 @Entity
 @Data
+@Getter
+@Setter
 @Table(name = "book")
 @AllArgsConstructor
 @NoArgsConstructor

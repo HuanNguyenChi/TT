@@ -27,6 +27,7 @@ import java.util.List;
 @RestController
 @RequestMapping("api/v1/library/category")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class CategoryController {
     private final CategoryService categoryService;
     private final DashboardService dashboardService;
@@ -45,21 +46,21 @@ public class CategoryController {
                 .build();
     }
     @PostMapping("/create")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse<?> createCategory(@RequestBody CreateCategoryRequest request){
         return ApiResponse.<CategoryDTO>builder()
                 .result(categoryService.CreateCategory(request))
                 .build();
     }
     @PutMapping("/update")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse<?> updateCategory(@RequestBody UpdateCategoryRequest request){
         return ApiResponse.<CategoryDTO>builder()
                 .result(categoryService.updateCategory(request))
                 .build();
     }
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse<?> deleteCategory(@RequestParam("ids") List<Long> ids){
         categoryService.deleteCategory(ids);
         return ApiResponse.<String>builder()
@@ -68,6 +69,7 @@ public class CategoryController {
     }
 
     @GetMapping("/statistics")
+    @PreAuthorize("hasRole('USER')")
     public ApiResponse<?> statistics(@RequestParam("categoryId") Long categoryId){
         return ApiResponse.<List<BookDTO>>builder()
                 .result(dashboardService.statisticBookByCategory(categoryId))
